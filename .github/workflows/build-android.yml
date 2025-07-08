@@ -41,8 +41,8 @@ jobs:
       # 6. Executa o comando de build do Flet para gerar o APK
       # A variável ${{ github.run_number }} usa o número da execução para versionar o app
       - name: Build Flet APK
-        run: flet build apk --build-name "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
-
+        run: flet build apk
+        
       # 7. Pega o APK gerado e o salva como um "artefato" para você poder baixar
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
