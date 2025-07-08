@@ -73,7 +73,8 @@ def calcular_macros_por_porcentagem(total_kcal, perc_carb, perc_prot, perc_gord)
     """Calcula os gramas de macros com base na distribuição percentual."""
     try:
         total_perc = perc_carb + perc_prot + perc_gord
-        if round(total_perc) != 100:
+        # CORREÇÃO: Usar uma margem de erro para comparar pontos flutuantes.
+        if abs(total_perc - 100) > 0.1:
             return None
         gramas_carb = round((total_kcal * (perc_carb / 100.0)) / 4)
         gramas_prot = round((total_kcal * (perc_prot / 100.0)) / 4)
@@ -88,12 +89,15 @@ def distribuir_macros_nas_refeicoes(macros_em_gramas, num_grandes, num_pequenas,
         if (num_grandes + num_pequenas) == 0:
             return None
         perc_dist_pequenas = 100 - perc_dist_grandes
+        
         gramas_carb_grandes_total = macros_em_gramas['carboidrato'] * (perc_dist_grandes / 100.0)
         gramas_prot_grandes_total = macros_em_gramas['proteina'] * (perc_dist_grandes / 100.0)
         gramas_gord_grandes_total = macros_em_gramas['gordura'] * (perc_dist_grandes / 100.0)
+
         gramas_carb_pequenas_total = macros_em_gramas['carboidrato'] * (perc_dist_pequenas / 100.0)
         gramas_prot_pequenas_total = macros_em_gramas['proteina'] * (perc_dist_pequenas / 100.0)
         gramas_gord_pequenas_total = macros_em_gramas['gordura'] * (perc_dist_pequenas / 100.0)
+        
         return {
             'por_refeicao_grande': {
                 'carboidrato': round(gramas_carb_grandes_total / num_grandes) if num_grandes > 0 else 0,
@@ -115,11 +119,7 @@ def somar_macros_refeicoes(refeicoes_grandes, refeicoes_pequenas):
     """
     macros_somados = {'proteina': 0, 'carboidrato': 0, 'gordura': 0}
     try:
-        for refeicao in refeicoes_grandes:
-            macros_somados['proteina'] += refeicao.get('proteina', 0)
-            macros_somados['carboidrato'] += refeicao.get('carboidrato', 0)
-            macros_somados['gordura'] += refeicao.get('gordura', 0)
-        for refeicao in refeicoes_pequenas:
+        for refeicao in refeicoes_grandes + refeicoes_pequenas:
             macros_somados['proteina'] += refeicao.get('proteina', 0)
             macros_somados['carboidrato'] += refeicao.get('carboidrato', 0)
             macros_somados['gordura'] += refeicao.get('gordura', 0)

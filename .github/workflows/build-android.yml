@@ -1,0 +1,51 @@
+# Nome do seu fluxo de trabalho, que aparecerá na aba "Actions"
+name: Build Android APK
+
+# Define que este fluxo de trabalho pode ser iniciado manualmente
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    # O tipo de máquina virtual que o robô usará. Ubuntu é o padrão.
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código mais recente do seu repositório para a máquina virtual
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Java (necessário para o Android)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      # 3. Configura o ambiente Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' 
+
+      # 4. Instala o Flutter SDK de forma fácil
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' 
+
+      # 5. Instala o Flet e suas dependências
+      - name: Install Python Dependencies
+        run: pip install flet --upgrade
+
+      # 6. Executa o comando de build do Flet para gerar o APK
+      # A variável ${{ github.run_number }} usa o número da execução para versionar o app
+      - name: Build Flet APK
+        run: flet build apk --build-name "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
+
+      # 7. Pega o APK gerado e o salva como um "artefato" para você poder baixar
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/apk/app-release.apk

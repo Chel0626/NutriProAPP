@@ -1,0 +1,24 @@
+{
+  "name": "Flet Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+
+  // Comando que roda uma única vez QUANDO O CODESPACE É CRIADO.
+  // Instala o Flet e já conserta o PATH permanentemente.
+  "postCreateCommand": "pip3 install flet && (grep -qF 'export PATH=\"$HOME/.local/bin:$PATH\"' ~/.bashrc || echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc)",
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Define o interpretador Python padrão para o VS Code
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "ms-python.python"
+      ]
+    }
+  },
+
+  // Encaminha a porta que o Flet usa para que o app seja acessível
+  "forwardPorts": [8550],
+  "postAttachCommand": "echo 'Codespace pronto! Use o comando: flet run main.py --port 8550 --web'"
+}
