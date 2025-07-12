@@ -82,171 +82,13 @@ def main(page: ft.Page):
         recalcular_totais_manuais()
 
     def criar_linha_refeicao(data, meal_type, index_in_type):
+        # ALTERAÇÃO: Removido 'width=80' para melhorar a edição e responsividade.
         campos = {}
         macro_map = {'carb': 'carboidrato', 'prot': 'proteina', 'gord': 'gordura'}
         for short_name, long_name in macro_map.items():
             entry = ft.TextField(
-                width=80, expand=1, text_align=ft.TextAlign.CENTER,
-                value=str(data.get(long_name, 0)),
-                on_focus=_store_old_value,
-                on_blur=lambda e, mt=meal_type, idx=index_in_type, mk=short_name: _on_macro_field_change(e, mt, idx, mk),
-                input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9]"),
-            )
-            campos[short_name] = entry
-        return campos
-
-    # --- O restante das suas funções de lógica continua aqui (sem alterações) ---
-    # executar_calculo_calorias, copiar_resultados_calorias, etc.
-    # (O código foi omitido aqui por brevidade, mas está completo no bloco final)
-
-
-    # =========================================================
-    # ===== ABA 1: CALCULADORA DE CALORIAS (LAYOUT CORRIGIDO) =
-    # =========================================================
-
-    entry_peso = ft.TextField(label="Peso (kg)", input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]"))
-    entry_altura = ft.TextField(label="Altura (cm)", input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]"))
-    entry_idade = ft.TextField(label="Idade (anos)", input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9]"))
-    combo_sexo = ft.Dropdown(label="Sexo", options=[ft.dropdown.Option(s) for s in ["Masculino", "Feminino", "Criança"]], value="Feminino")
-    combo_nivel_atividade = ft.Dropdown(
-        label="Nível de Atividade",
-        options=[ft.dropdown.Option(o) for o in ['Sedentário (pouco ou nenhum exercício)', 'Levemente Ativo (exercício 1-3 dias/semana)', 'Moderadamente Ativo (exercício 3-5 dias/semana)', 'Muito Ativo (exercício 6-7 dias/semana)', 'Extremamente Ativo (exercício muito pesado/trabalho físico)']],
-        value='Levemente Ativo (exercício 1-3 dias/semana)'
-    )
-    combo_objetivo = ft.Dropdown(label="Objetivo", options=[ft.dropdown.Option(o) for o in ['Perder Peso', 'Manter Peso', 'Ganhar Peso']], value='Manter Peso')
-
-    label_resultado_tmb_cal = ft.Text("Taxa Metabólica Basal (TMB): - kcal/dia")
-    label_resultado_fator_cal = ft.Text("Fator de Atividade (NAF): -")
-    label_resultado_manutencao_cal = ft.Text("Calorias para Manutenção: - kcal/dia")
-    label_resultado_objetivo_cal = ft.Text("Meta para Objetivo: - kcal/dia", size=16, weight=ft.FontWeight.BOLD)
-
-    # --- ALTERAÇÃO PRINCIPAL: USO DO RESPONSIVEROW ---
-    tab_calorias_content = ft.Column(
-        [
-            ft.Text("Dados do Paciente", size=16, weight=ft.FontWeight.BOLD),
-            # ft.ResponsiveRow organiza os itens em 12 colunas virtuais.
-            # "sm": small (celular), "md": medium (tablet), "lg": large (desktop)
-            ft.ResponsiveRow(
-                [
-                    # Cada item ocupa a tela inteira em celular (12) e metade em telas médias (6)
-                    ft.Column(col={"sm": 12, "md": 6}, controls=[entry_peso]),
-                    ft.Column(col={"sm": 12, "md": 6}, controls=[entry_altura]),
-                    ft.Column(col={"sm": 12, "md": 6}, controls=[entry_idade]),
-                    ft.Column(col={"sm": 12, "md": 6}, controls=[combo_sexo]),
-                    ft.Column(col={"sm": 12}, controls=[combo_nivel_atividade]), # Este ocupa a linha inteira sempre
-                    ft.Column(col={"sm": 12}, controls=[combo_objetivo]),
-                ],
-            ),
-            ft.Row(
-                [
-                    ft.FilledButton("Calcular Necessidade", on_click=executar_calculo_calorias, icon="calculate_outlined", expand=True),
-                    ft.FilledButton("Copiar", on_click=copiar_resultados_calorias, icon="copy"),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER
-            ),
-            ft.Row(
-                 [ft.FilledButton("Avançar para Distribuição →", on_click=ir_para_distribuicao, icon="arrow_forward", expand=True)],
-                 alignment=ft.MainAxisAlignment.CENTER
-            ),
-            ft.Divider(),
-            ft.Container(
-                content=ft.Column([
-                    ft.Text("Resultados do Cálculo Calórico", size=14, weight=ft.FontWeight.BOLD),
-                    label_resultado_tmb_cal, label_resultado_fator_cal, label_resultado_manutencao_cal, label_resultado_objetivo_cal,
-                ]), padding=10, border=ft.border.all(1, "blue_grey_100"), border_radius=5
-            )
-        ],
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=15,
-        # ALTERAÇÃO: Habilita a rolagem na primeira aba
-        scroll=ft.ScrollMode.ADAPTIVE
-    )
-    
-    # --- O restante do código permanece o mesmo ---
-    # (O código das outras abas e o código completo está no bloco final)
-
-    # ... (código completo omitido por brevidade, mas está no bloco abaixo)
-
-# --- CÓDIGO COMPLETO PARA SUBSTITUIÇÃO ---
-# (Este bloco contém o código completo e funcional do main.py para você copiar e colar)
-
-def main(page: ft.Page):
-    page.title = "Ferramenta de Planejamento de Dieta"
-    page.vertical_alignment = ft.CrossAxisAlignment.START
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.window_width = 650
-    page.window_height = 750
-    page.padding = 10
-    page.theme_mode = ft.ThemeMode.LIGHT
-
-    app_state = {
-        "ultimo_resultado": {},
-        "widgets_refeicoes": {'grandes': [], 'pequenas': []},
-        "entry_old_values": {}
-    }
-    redistribuicao_automatica_ref = ft.Ref[ft.Checkbox]()
-    page.snack_bar = ft.SnackBar(ft.Text(""))
-
-    def show_message(message: str, error=False):
-        page.snack_bar.content = ft.Text(message)
-        page.snack_bar.open = True
-        page.snack_bar.bgcolor = "red500" if error else "green700"
-        page.update()
-
-    def _store_old_value(e: ft.ControlEvent):
-        widget = e.control
-        try:
-            app_state["entry_old_values"][widget] = int(widget.value or 0)
-        except (ValueError, TypeError):
-            app_state["entry_old_values"][widget] = 0
-
-    def _on_macro_field_change(e: ft.ControlEvent, meal_type: str, changed_index: int, macro_key: str):
-        if not redistribuicao_automatica_ref.current.value:
-            recalcular_totais_manuais()
-            return
-
-        changed_widget = e.control
-        old_value = app_state["entry_old_values"].get(changed_widget, 0)
-
-        try:
-            new_value = int(changed_widget.value or 0)
-        except ValueError:
-            changed_widget.value = str(old_value)
-            changed_widget.update()
-            return
-
-        delta = old_value - new_value
-        if delta == 0: return
-
-        peer_widgets = [
-            widget_info[macro_key]
-            for i, widget_info in enumerate(app_state["widgets_refeicoes"][meal_type])
-            if i != changed_index
-        ]
-        
-        if not peer_widgets:
-            recalcular_totais_manuais()
-            return
-
-        base_redistribution = delta // len(peer_widgets)
-        remainder = delta % len(peer_widgets)
-
-        for i, widget in enumerate(peer_widgets):
-            try:
-                current_peer_value = int(widget.value or 0)
-                amount_to_add = base_redistribution + (1 if i < remainder else 0)
-                widget.value = str(current_peer_value + amount_to_add)
-                widget.update()
-            except ValueError:
-                continue
-        recalcular_totais_manuais()
-
-    def criar_linha_refeicao(data, meal_type, index_in_type):
-        campos = {}
-        macro_map = {'carb': 'carboidrato', 'prot': 'proteina', 'gord': 'gordura'}
-        for short_name, long_name in macro_map.items():
-            entry = ft.TextField(
-                width=80, expand=1, text_align=ft.TextAlign.CENTER,
+                expand=1, # Deixa o layout gerenciar o tamanho
+                text_align=ft.TextAlign.CENTER,
                 value=str(data.get(long_name, 0)),
                 on_focus=_store_old_value,
                 on_blur=lambda e, mt=meal_type, idx=index_in_type, mk=short_name: _on_macro_field_change(e, mt, idx, mk),
@@ -431,7 +273,7 @@ def main(page: ft.Page):
                 show_message("O 'Valor A' não pode ser zero.", error=True)
                 return
             resultado = (b * c) / a
-            label_r3_resultado_valor.value = f"{resultado:.2f}" # FORMATADO
+            label_r3_resultado_valor.value = f"{resultado:.2f}"
             show_message("Cálculo da regra de 3 realizado!")
         except ValueError:
             show_message("Insira números válidos.", error=True)
@@ -472,9 +314,29 @@ def main(page: ft.Page):
     frame_resultados = ft.Container(content=ft.Column([ft.Text("Resultados e Ajustes", size=14, weight=ft.FontWeight.BOLD), frame_totais, ft.Divider(), frame_ajuste_manual]), padding=10, border=ft.border.all(1, "blue_grey_100"), border_radius=5, visible=False)
     tab_macros_content = ft.Column([ft.Container(content=ft.Column([ft.Text("Configuração Inicial", size=14, weight=ft.FontWeight.BOLD), ft.Row([ft.Column([entry_total_kcal_macro, entry_peso_paciente_macro, entry_perc_prot]), ft.Column([entry_perc_carb, entry_perc_gord, entry_num_grandes]), ft.Column([entry_num_pequenas, entry_perc_dist_grandes])], alignment=ft.MainAxisAlignment.CENTER, wrap=True)]), padding=10, border=ft.border.all(1, "blue_grey_100"), border_radius=5), ft.FilledButton("Calcular Distribuição", on_click=executar_calculo_macros, icon="playlist_add_check_circle_rounded"), frame_resultados], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15, scroll=ft.ScrollMode.ADAPTIVE)
     
-    entry_r3_a, entry_r3_b, entry_r3_c = (ft.TextField(label=f"Valor {L}", width=150, text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]")) for L in "ABC")
-    label_r3_resultado_valor = ft.Text("---", size=20, weight=ft.FontWeight.BOLD, color="blue_500", width=150, text_align=ft.TextAlign.CENTER)
-    tab_regra3_content = ft.Column([ft.Row([entry_r3_a, ft.Text("está para"), entry_r3_b], alignment=ft.MainAxisAlignment.CENTER, spacing=10), ft.Text("assim como", weight=ft.FontWeight.BOLD), ft.Row([entry_r3_c, ft.Text("está para"), ft.Column([ft.Text("Resultado (X):", weight=ft.FontWeight.BOLD), label_r3_resultado_valor], horizontal_alignment=ft.CrossAxisAlignment.CENTER)], alignment=ft.MainAxisAlignment.CENTER, spacing=10), ft.Row([ft.FilledButton("Calcular", on_click=calcular_regra_de_3, icon="calculate"), ft.FilledButton("Limpar Campos", on_click=limpar_regra_de_3, icon="clear")], alignment=ft.MainAxisAlignment.CENTER, spacing=20)], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=20, alignment=ft.MainAxisAlignment.CENTER, expand=True)
+    # --- ALTERAÇÃO: Layout da Aba 3 ---
+    entry_r3_a, entry_r3_b, entry_r3_c = (ft.TextField(label=f"Valor {L}", text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]")) for L in "ABC")
+    label_r3_resultado_valor = ft.Text("---", size=20, weight=ft.FontWeight.BOLD, color="blue_500", text_align=ft.TextAlign.CENTER)
+    tab_regra3_content = ft.Column([
+        ft.ResponsiveRow([
+            ft.Column(col={"sm": 5}, controls=[entry_r3_a]),
+            ft.Column(col={"sm": 2}, controls=[ft.Text("está para", text_align=ft.TextAlign.CENTER)]),
+            ft.Column(col={"sm": 5}, controls=[entry_r3_b]),
+        ], alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        ft.Text("assim como", weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+        ft.ResponsiveRow([
+            ft.Column(col={"sm": 5}, controls=[entry_r3_c]),
+            ft.Column(col={"sm": 2}, controls=[ft.Text("está para", text_align=ft.TextAlign.CENTER)]),
+            ft.Column(col={"sm": 5}, controls=[
+                ft.Text("Resultado (X):", weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER), 
+                label_r3_resultado_valor
+            ]),
+        ], alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        ft.Row([
+            ft.FilledButton("Calcular", on_click=calcular_regra_de_3, icon="calculate", expand=True),
+            ft.FilledButton("Limpar", on_click=limpar_regra_de_3, icon="clear", expand=True),
+        ], alignment=ft.MainAxisAlignment.CENTER)
+    ], spacing=20, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
     tabs = ft.Tabs(selected_index=0, animation_duration=300, tabs=[ft.Tab(text="1. Caloria", content=tab_calorias_content, icon="flash_on"), ft.Tab(text="2. Dieta", content=tab_macros_content, icon="pie_chart"), ft.Tab(text="Regra de 3", content=tab_regra3_content, icon="percent")], expand=1)
     page.add(tabs)

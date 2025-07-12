@@ -2,3 +2,13 @@ name: NutriProAPP
 description: Ferramenta de Planejamento de Dieta.
 version: 1.0.0
 author: Michel Henrique
+
+# Seção que lista todos os recursos (imagens, fontes, etc.)
+# que devem ser incluídos no pacote do seu app.
+assets:
+  - path: assets/icon.png
+    name: app_icon
+
+# Especifica qual recurso da lista de 'assets' usar como o ícone
+# que aparecerá na tela do celular.
+icon: assets/icon.png
