@@ -82,12 +82,11 @@ def main(page: ft.Page):
         recalcular_totais_manuais()
 
     def criar_linha_refeicao(data, meal_type, index_in_type):
-        # ALTERAÇÃO: Removido 'width=80' para melhorar a edição e responsividade.
         campos = {}
         macro_map = {'carb': 'carboidrato', 'prot': 'proteina', 'gord': 'gordura'}
         for short_name, long_name in macro_map.items():
             entry = ft.TextField(
-                expand=1, # Deixa o layout gerenciar o tamanho
+                expand=1,
                 text_align=ft.TextAlign.CENTER,
                 value=str(data.get(long_name, 0)),
                 on_focus=_store_old_value,
@@ -314,29 +313,28 @@ def main(page: ft.Page):
     frame_resultados = ft.Container(content=ft.Column([ft.Text("Resultados e Ajustes", size=14, weight=ft.FontWeight.BOLD), frame_totais, ft.Divider(), frame_ajuste_manual]), padding=10, border=ft.border.all(1, "blue_grey_100"), border_radius=5, visible=False)
     tab_macros_content = ft.Column([ft.Container(content=ft.Column([ft.Text("Configuração Inicial", size=14, weight=ft.FontWeight.BOLD), ft.Row([ft.Column([entry_total_kcal_macro, entry_peso_paciente_macro, entry_perc_prot]), ft.Column([entry_perc_carb, entry_perc_gord, entry_num_grandes]), ft.Column([entry_num_pequenas, entry_perc_dist_grandes])], alignment=ft.MainAxisAlignment.CENTER, wrap=True)]), padding=10, border=ft.border.all(1, "blue_grey_100"), border_radius=5), ft.FilledButton("Calcular Distribuição", on_click=executar_calculo_macros, icon="playlist_add_check_circle_rounded"), frame_resultados], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15, scroll=ft.ScrollMode.ADAPTIVE)
     
-    # --- ALTERAÇÃO: Layout da Aba 3 ---
-    entry_r3_a, entry_r3_b, entry_r3_c = (ft.TextField(label=f"Valor {L}", text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]")) for L in "ABC")
-    label_r3_resultado_valor = ft.Text("---", size=20, weight=ft.FontWeight.BOLD, color="blue_500", text_align=ft.TextAlign.CENTER)
+    entry_r3_a = ft.TextField(label="Valor A", text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]"))
+    entry_r3_b = ft.TextField(label="Valor B", text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]"))
+    entry_r3_c = ft.TextField(label="Valor C", text_align=ft.TextAlign.CENTER, input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9\.]"))
+    label_r3_resultado_valor = ft.Text("---", size=24, weight=ft.FontWeight.BOLD, color="blue_500", text_align=ft.TextAlign.CENTER)
+    
     tab_regra3_content = ft.Column([
-        ft.ResponsiveRow([
-            ft.Column(col={"sm": 5}, controls=[entry_r3_a]),
-            ft.Column(col={"sm": 2}, controls=[ft.Text("está para", text_align=ft.TextAlign.CENTER)]),
-            ft.Column(col={"sm": 5}, controls=[entry_r3_b]),
-        ], alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        ft.Row([
+            ft.Column([entry_r3_a], expand=2),
+            ft.Column([ft.Text("está para", text_align=ft.TextAlign.CENTER)], expand=1),
+            ft.Column([entry_r3_b], expand=2),
+        ], vertical_alignment=ft.CrossAxisAlignment.CENTER),
         ft.Text("assim como", weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
-        ft.ResponsiveRow([
-            ft.Column(col={"sm": 5}, controls=[entry_r3_c]),
-            ft.Column(col={"sm": 2}, controls=[ft.Text("está para", text_align=ft.TextAlign.CENTER)]),
-            ft.Column(col={"sm": 5}, controls=[
-                ft.Text("Resultado (X):", weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER), 
-                label_r3_resultado_valor
-            ]),
-        ], alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        ft.Row([
+            ft.Column([entry_r3_c], expand=2),
+            ft.Column([ft.Text("está para", text_align=ft.TextAlign.CENTER)], expand=1),
+            ft.Column([ft.Text("Resultado (X)", weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER), label_r3_resultado_valor], expand=2, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+        ], vertical_alignment=ft.CrossAxisAlignment.CENTER),
         ft.Row([
             ft.FilledButton("Calcular", on_click=calcular_regra_de_3, icon="calculate", expand=True),
             ft.FilledButton("Limpar", on_click=limpar_regra_de_3, icon="clear", expand=True),
-        ], alignment=ft.MainAxisAlignment.CENTER)
-    ], spacing=20, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+        ])
+    ], spacing=15, alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
     tabs = ft.Tabs(selected_index=0, animation_duration=300, tabs=[ft.Tab(text="1. Caloria", content=tab_calorias_content, icon="flash_on"), ft.Tab(text="2. Dieta", content=tab_macros_content, icon="pie_chart"), ft.Tab(text="Regra de 3", content=tab_regra3_content, icon="percent")], expand=1)
     page.add(tabs)
